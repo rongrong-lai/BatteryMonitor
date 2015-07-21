@@ -8,17 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 
 public class MainActivity extends Activity {
     private int batterylevel = -1;
@@ -29,14 +23,21 @@ public class MainActivity extends Activity {
         batteryLevelReceiver = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
                 TextView batteryPercent = (TextView)findViewById(R.id.batteryPercent);
+                TextView batteryVoltage = (TextView)findViewById(R.id.batteryVoltage);
+                TextView batteryTemperature = (TextView)findViewById(R.id.batteryTemperature);
 
                 int currentLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
                 int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+                int voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
+                int temperature = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1);
 
                 if (currentLevel >= 0 && scale > 0) {
+                    Log.i("Test", "battery change! current level:" + currentLevel);
                     batterylevel = (currentLevel * 100) / scale;
                 }
                 batteryPercent.setText("Battery Level Remaining: " + batterylevel + "%");
+                batteryVoltage.setText("Battery Voltage: " + voltage);
+                batteryTemperature.setText("Battery Temperature: " + temperature);
 
                 /*To get the update battery level, we need to cancel the pending alarm and start a new one
                 * Create a PendingIntent (or update the existing PendingIntent with new values
@@ -52,7 +53,7 @@ public class MainActivity extends Activity {
                 // cancel any pending alarms
                 am.cancel(pendingIntent);
                 //start new
-                am.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(), 1000 * 30, pendingIntent);
+                am.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(), 1000 * 10, pendingIntent);
                 Toast.makeText(MainActivity.this, "Alarm Scheduled for every 30 seconds", Toast.LENGTH_LONG).show();
             }
         };
